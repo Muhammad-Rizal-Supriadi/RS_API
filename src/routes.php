@@ -15,6 +15,8 @@ return function (App $app) {
         return $container->get('renderer')->render($response, 'index.phtml', $args);
     });
 
+    //---------------------------------------------------Dokter --------------------------------------------------
+    
     $app->get("/dokter/", function (Request $request, Response $response) {
         $sql = "SELECT * FROM dokter";
         $stmt = $this->db->prepare($sql);
@@ -100,7 +102,7 @@ return function (App $app) {
     $app->put("/dokter/{id}", function (Request $request, Response $response, $args) {
         $id = $args["id"];
         $new_book = $request->getParsedBody();
-        $sql = "UPDATE dokter SET nama_dokter=:nama_dokter, no_telp=:no_telp, spesialis=:spesialis, alamat=:alamat WHERE id_dokter=:id";
+        $sql = "UPDATE dokter SET nama_dokter=:nama_dokter, no_telp=:no_telp, spesialis=:spesialis, alamat=:alamat WHERE spesialis=:id";
         $stmt = $this->db->prepare($sql);
 
         $data = [
@@ -120,6 +122,149 @@ return function (App $app) {
     $app->delete("/dokter/{id}", function (Request $request, Response $response, $args) {
         $id = $args["id"];
         $sql = "DELETE FROM dokter WHERE id_dokter=:id";
+        $stmt = $this->db->prepare($sql);
+
+        $data = [
+            ":id" => $id
+        ];
+
+        if ($stmt->execute($data))
+            return $response->withJson(["success" => "true", "code_resons" => "200", "data" => "1"], 200);
+
+        return $response->withJson(["success" => "false", "code_resons" => "400", "message" => "sorry,that page does not exist"], 200);
+    });
+
+    //---------------------------------------------------Rekamedis --------------------------------------------------
+    
+    $app->get("/rekamedis/", function (Request $request, Response $response) {
+        $sql = "SELECT
+                id_rekamedis, nama_pasien, nama_dokter, penyakit, nama_poli
+            FROM rekamedis
+                JOIN pasien USING(id_pasien)
+                JOIN dokter USING(id_dokter)
+                JOIN diagnosa USING(id_diagnosa)
+                JOIN poliklinik USING(id_poli)
+                ORDER BY 
+                id_rekamedis ASC";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        $result = $stmt->fetchAll();
+        if ($result != null){
+            return $response->withJson([
+                "success" => "true",
+                "code_resons" => "200",
+                "data" => $result],
+            200);
+        }else{
+            return $response->withJson([
+                "success" => "false", 
+                "code_resons" => "400", 
+                "message" => "sorry,that page does not exist"],
+            400);
+        }
+    });
+
+    $app->get("/rekamedis/{id}", function (Request $request, Response $response, $args) {
+        $id = $args["id"];
+        $sql = "SELECT
+            id_rekamedis, nama_pasien, nama_dokter, penyakit, nama_poli
+        FROM rekamedis
+            JOIN pasien USING(id_pasien)
+            JOIN dokter USING(id_dokter)
+            JOIN diagnosa USING(id_diagnosa)
+            JOIN poliklinik USING(id_poli)
+            WHERE 
+            id_rekamedis=:id";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([":id" => $id]);
+        $result = $stmt->fetch();
+        if ($result != null){
+            return $response->withJson([
+                "success" => "true",
+                "code_resons" => "200",
+                "data" => $result],
+            200);
+        }else{
+            return $response->withJson([
+                "success" => "false", 
+                "code_resons" => "400", 
+                "message" => "sorry,that page does not exist"],
+            400);
+        }   
+    });
+
+    $app->get("/rekamedis/search/", function (Request $request, Response $response, $args) {
+        $keyword = $request->getQueryParam("keyword");
+        $sql = "SELECT
+        id_rekamedis, nama_pasien, nama_dokter, penyakit, nama_poli, tgl_periksa
+    FROM rekamedis
+        JOIN pasien USING(id_pasien)
+        JOIN dokter USING(id_dokter)
+        JOIN diagnosa USING(id_diagnosa)
+        JOIN poliklinik USING(id_poli) WHERE id_pasien LIKE '%$keyword%' OR id_dokter LIKE '%$keyword%' OR tgl_periksa LIKE '%$keyword%'";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        $result = $stmt->fetchAll();
+        if ($result != null){
+            return $response->withJson([
+                "success" => "true",
+                "code_resons" => "200",
+                "data" => $result],
+            200);
+        }else{
+            return $response->withJson([
+                "success" => "false", 
+                "code_resons" => "400", 
+                "message" => "sorry,that page does not exist"],
+            400);
+        }
+    });
+
+    $app->post("/rekamedis/", function (Request $request, Response $response) {
+
+        $new_book = $request->getParsedBody();
+
+        $sql = "INSERT INTO rekamedis (id_pasien, id_diagnosa, id_dokter, id_poli, tgl_periksa) VALUE (:id_pasien, :id_diagnosa, :id_dokter, :id_poli, :tgl_periksa)";
+        $stmt = $this->db->prepare($sql);
+
+        $data = [
+            ":id_pasien" => $new_book["id_pasien"],
+            ":id_dokter" => $new_book["id_dokter"],
+            ":id_poli" => $new_book["id_poli"],
+            ":id_diagnosa" => $new_book["id_diagnosa"],
+            ":tgl_periksa" => $new_book["tgl_periksa"]
+        ];
+
+        if ($stmt->execute($data))
+            return $response->withJson(["success" => "true", "code_resons" => "200", "data" => "1"], 200);
+
+        return $response->withJson(["success" => "false", "code_resons" => "400", "message" => "sorry,that page does not exist"], 200);
+    });
+
+    $app->put("/rekamedis/{id}", function (Request $request, Response $response, $args) {
+        $id = $args["id"];
+        $new_book = $request->getParsedBody();
+        $sql = "UPDATE rekamedis SET id_pasien=:id_pasien, id_diagnosa=:id_diagnosa, id_dokter=:id_dokter, id_poli=:id_poli, tgl_periksa=:tgl_periksa WHERE id_rekamedis=:id";
+        $stmt = $this->db->prepare($sql);
+
+        $data = [
+            ":id" => $id,
+            ":id_pasien" => $new_book["id_pasien"],
+            ":id_diagnosa" => $new_book["id_diagnosa"],
+            ":id_poli" => $new_book["id_poli"],
+            ":id_dokter" => $new_book["id_dokter"],
+            ":tgl_periksa" => $new_book["tgl_periksa"]
+        ];
+
+        if ($stmt->execute($data))
+            return $response->withJson(["success" => "true", "code_resons" => "200", "data" => "1"], 200);
+
+        return $response->withJson(["success" => "false", "code_resons" => "400", "message" => "sorry,that page does not exist"], 200);
+    });
+
+    $app->delete("/rekamedis/{id}", function (Request $request, Response $response, $args) {
+        $id = $args["id"];
+        $sql = "DELETE FROM rekamedis WHERE id_rekamedis=:id";
         $stmt = $this->db->prepare($sql);
 
         $data = [
