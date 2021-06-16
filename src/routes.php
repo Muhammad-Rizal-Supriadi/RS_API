@@ -1138,6 +1138,290 @@ return function (App $app) {
 
         return $response->withJson(["success" => "false", "code_resons" => "400", "message" => "sorry,that page does not exist"], 200);
     });
+
+
+
+
+
+
+    $app->get("/petugas/", function (Request $request, Response $response) {
+        $sql = "SELECT * FROM petugas";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        $result = $stmt->fetchAll();
+        if ($result != null) {
+            return $response->withJson(
+                [
+                    "success" => "true",
+                    "code_resons" => "200",
+                    "data" => $result
+                ],
+                200
+            );
+        } else {
+            return $response->withJson(
+                [
+                    "success" => "false",
+                    "code_resons" => "400",
+                    "message" => "sorry,that page does not exist"
+                ],
+                400
+            );
+        }
+    });
+
+    $app->get("/rawat_inap/", function (Request $request, Response $response) {
+        $sql = "SELECT
+        id_ruang ,tgl_periksa, nama_ruangan
+    FROM rawat_inap
+        JOIN rekamedis USING(id_rekamedis)
+        ORDER BY 
+        id_ruang ASC";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        $result = $stmt->fetchAll();
+        if ($result != null) {
+            return $response->withJson(
+                [
+                    "success" => "true",
+                    "code_resons" => "200",
+                    "data" => $result
+                ],
+                200
+            );
+        } else {
+            return $response->withJson(
+                [
+                    "success" => "false",
+                    "code_resons" => "400",
+                    "message" => "sorry,that page does not exist"
+                ],
+                400
+            );
+        }
+    });
+
+    $app->get("/petugas/{id}", function (Request $request, Response $response, $args) {
+        $id = $args["id"];
+        $sql = "SELECT * FROM petugas WHERE id_petugas=:id";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([":id" => $id]);
+        $result = $stmt->fetch();
+        if ($result != null) {
+            return $response->withJson(
+                [
+                    "success" => "true",
+                    "code_resons" => "200",
+                    "data" => $result
+                ],
+                200
+            );
+        } else {
+            return $response->withJson(
+                [
+                    "success" => "false",
+                    "code_resons" => "400",
+                    "message" => "sorry,that page does not exist"
+                ],
+                400
+            );
+        }
+    });
+
+    $app->get("/rawat_inap/{id}", function (Request $request, Response $response, $args) {
+        $id = $args["id"];
+        $sql ="SELECT
+        id_ruang ,tgl_periksa, nama_ruangan
+    FROM rawat_inap
+        JOIN rekamedis USING(id_rekamedis)
+        WHERE 
+        id_ruang =:id";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([":id" => $id]);
+        $result = $stmt->fetch();
+        if ($result != null) {
+            return $response->withJson(
+                [
+                    "success" => "true",
+                    "code_resons" => "200",
+                    "data" => $result
+                ],
+                200
+            );
+        } else {
+            return $response->withJson(
+                [
+                    "success" => "false",
+                    "code_resons" => "400",
+                    "message" => "sorry,that page does not exist"
+                ],
+                400
+            );
+        }
+    });
+
+    $app->get("/petugas/search/", function (Request $request, Response $response, $args) {
+        $keyword = $request->getQueryParam("keyword");
+        $sql = "SELECT * FROM petugas WHERE nama_petugas LIKE '%$keyword%' OR jenis_kelamin LIKE '%$keyword%' OR no_telp LIKE '%$keyword%'";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        $result = $stmt->fetchAll();
+        if ($result != null) {
+            return $response->withJson(
+                [
+                    "success" => "true",
+                    "code_resons" => "200",
+                    "data" => $result
+                ],
+                200
+            );
+        } else {
+            return $response->withJson(
+                [
+                    "success" => "false",
+                    "code_resons" => "400",
+                    "message" => "sorry,that page does not exist"
+                ],
+                400
+            );
+        }
+    });
+
+    $app->get("/rawat_inap/search/", function (Request $request, Response $response, $args) {
+        $keyword = $request->getQueryParam("keyword");
+        $sql = "SELECT
+        id_ruang ,tgl_periksa, nama_ruangan
+    FROM rawat_inap
+        JOIN rekamedis USING(id_rekamedis)
+        WHERE 
+        id_ruang LIKE '%$keyword%' OR nama_ruangan LIKE '%$keyword%'";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        $result = $stmt->fetchAll();
+        if ($result != null) {
+            return $response->withJson(
+                [
+                    "success" => "true",
+                    "code_resons" => "200",
+                    "data" => $result
+                ],
+                200
+            );
+        } else {
+            return $response->withJson(
+                [
+                    "success" => "false",
+                    "code_resons" => "400",
+                    "message" => "sorry,that page does not exist"
+                ],
+                400
+            );
+        }
+    });
+
+    $app->post("/petugas/", function (Request $request, Response $response) {
+
+        $new_book = $request->getParsedBody();
+
+        $sql = "INSERT INTO petugas (nama_petugas, jenis_kelamin, no_telp) VALUE (:nama_petugas, :jenis_kelamin, :no_telp)";
+        $stmt = $this->db->prepare($sql);
+
+        $data = [
+            ":nama_petugas" => $new_book["nama_petugas"],
+            ":jenis_kelamin" => $new_book["jenis_kelamin"],
+            ":no_telp" => $new_book["no_telp"]
+        ];
+
+        if ($stmt->execute($data))
+            return $response->withJson(["success" => "true", "code_resons" => "200", "data" => "1"], 200);
+
+        return $response->withJson(["success" => "false", "code_resons" => "400", "message" => "sorry,that page does not exist"], 200);
+    });
+
+    $app->post("/rawat_inap/", function (Request $request, Response $response) {
+
+        $new_book = $request->getParsedBody();
+
+        $sql = "INSERT INTO rawat_inap (id_rekamedis, nama_ruangan) VALUE (:id_rekamedis, :nama_ruangan)";
+        $stmt = $this->db->prepare($sql);
+
+        $data = [
+            ":id_rekamedis" => $new_book["id_rekamedis"],
+            ":nama_ruangan" => $new_book["nama_ruangan"]
+        ];
+
+        if ($stmt->execute($data))
+            return $response->withJson(["success" => "true", "code_resons" => "200", "data" => "1"], 200);
+
+        return $response->withJson(["success" => "false", "code_resons" => "400", "message" => "sorry,that page does not exist"], 200);
+    });
+
+    $app->put("/petugas/{id}", function (Request $request, Response $response, $args) {
+        $id = $args["id"];
+        $new_book = $request->getParsedBody();
+        $sql = "UPDATE petugas SET nama_petugas=:nama_petugas, jenis_kelamin=:jenis_kelamin, no_telp=:no_telp WHERE id_petugas=:id";
+        $stmt = $this->db->prepare($sql);
+
+        $data = [
+            ":id" => $id,
+            ":nama_petugas" => $new_book["nama_petugas"],
+            ":jenis_kelamin" => $new_book["jenis_kelamin"],
+            ":no_telp" => $new_book["no_telp"]
+        ];
+
+        if ($stmt->execute($data))
+            return $response->withJson(["success" => "true", "code_resons" => "200", "data" => "1"], 200);
+
+        return $response->withJson(["success" => "false", "code_resons" => "400", "message" => "sorry,that page does not exist"], 200);
+    });
+
+    $app->put("/rawat_inap/{id}", function (Request $request, Response $response, $args) {
+        $id = $args["id"];
+        $new_book = $request->getParsedBody();
+        $sql = "UPDATE rawat_inap SET id_rekamedis=:id_rekamedis, nama_ruangan=:nama_ruangan WHERE id_ruang=:id";
+        $stmt = $this->db->prepare($sql);
+
+        $data = [
+            ":id" => $id,
+            ":id_rekamedis" => $new_book["id_rekamedis"],
+            ":nama_ruangan" => $new_book["nama_ruangan"]
+        ];
+
+        if ($stmt->execute($data))
+            return $response->withJson(["success" => "true", "code_resons" => "200", "data" => "1"], 200);
+
+        return $response->withJson(["success" => "false", "code_resons" => "400", "message" => "sorry,that page does not exist"], 200);
+    });
+
+    $app->delete("/petugas/{id}", function (Request $request, Response $response, $args) {
+        $id = $args["id"];
+        $sql = "DELETE FROM petugas WHERE id_petugas=:id";
+        $stmt = $this->db->prepare($sql);
+
+        $data = [
+            ":id" => $id
+        ];
+
+        if ($stmt->execute($data))
+            return $response->withJson(["success" => "true", "code_resons" => "200", "data" => "1"], 200);
+
+        return $response->withJson(["success" => "false", "code_resons" => "400", "message" => "sorry,that page does not exist"], 200);
+    });
+
+    $app->delete("/rawat_inap/{id}", function (Request $request, Response $response, $args) {
+        $id = $args["id"];
+        $sql = "DELETE FROM rawat_inap WHERE id_ruang=:id";
+        $stmt = $this->db->prepare($sql);
+
+        $data = [
+            ":id" => $id
+        ];
+
+        if ($stmt->execute($data))
+            return $response->withJson(["success" => "true", "code_resons" => "200", "data" => "1"], 200);
+
+        return $response->withJson(["success" => "false", "code_resons" => "400", "message" => "sorry,that page does not exist"], 200);
+    });
 };
 
 
