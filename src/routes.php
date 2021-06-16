@@ -15,7 +15,6 @@ return function (App $app) {
         return $container->get('renderer')->render($response, 'index.phtml', $args);
     });
 
-<<<<<<< HEAD
     //---------------------------------------------------PoliKlinik--------------------------------------------------
 
     app->get("/poliklinik/", function (Request $request, Response $response) {
@@ -284,10 +283,6 @@ return function (App $app) {
 
     //---------------------------------------------------Dokter --------------------------------------------------
 
-=======
-    //======================================================= Dokter ================================================-
-    
->>>>>>> e5995fa9cd8291db83c148bf746257959d6be6a0
     $app->get("/dokter/", function (Request $request, Response $response) {
         $sql = "SELECT * FROM dokter";
         $stmt = $this->db->prepare($sql);
@@ -850,3 +845,278 @@ return function (App $app) {
         return $response->withJson(["success" => "false", "code_resons" => "400", "message" => "sorry,that page does not exist"], 200);
     });
 };
+
+    //============================================ Pasien ===========================================================
+
+    $app->get("/pasien/", function (Request $request, Response $response) {
+        $sql = "SELECT * FROM pasien";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        $result = $stmt->fetchAll();
+        if ($result != null) {
+            return $response->withJson(
+                [
+                    "success" => "true",
+                    "code_resons" => "200",
+                    "data" => $result
+                ],
+                200
+            );
+        } else {
+            return $response->withJson(
+                [
+                    "success" => "false",
+                    "code_resons" => "400",
+                    "message" => "sorry,that page does not exist"
+                ],
+                400
+            );
+        }
+    });
+
+    $app->get("/pasien/{id}", function (Request $request, Response $response, $args) {
+        $id = $args["id"];
+        $sql = "SELECT * FROM pasien WHERE id_pasien=:id";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([":id" => $id]);
+        $result = $stmt->fetch();
+        if ($result != null) {
+            return $response->withJson(
+                [
+                    "success" => "true",
+                    "code_resons" => "200",
+                    "data" => $result
+                ],
+                200
+            );
+        } else {
+            return $response->withJson(
+                [
+                    "success" => "false",
+                    "code_resons" => "400",
+                    "message" => "sorry,that page does not exist"
+                ],
+                400
+            );
+        }
+    });
+
+    $app->get("/pasien/search/", function (Request $request, Response $response, $args) {
+        $keyword = $request->getQueryParam("keyword");
+        $sql = "SELECT * FROM pasien WHERE nama_pasien LIKE '%$keyword%' OR jenis_kelamin LIKE '%$keyword%' OR alamat LIKE '%$keyword%' OR no_telp LIKE '%$keyword%$'";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        $result = $stmt->fetchAll();
+        if ($result != null) {
+            return $response->withJson(
+                [
+                    "success" => "true",
+                    "code_resons" => "200",
+                    "data" => $result
+                ],
+                200
+            );
+        } else {
+            return $response->withJson(
+                [
+                    "success" => "false",
+                    "code_resons" => "400",
+                    "message" => "sorry,that page does not exist"
+                ],
+                400
+            );
+        }
+    });
+
+    $app->post("/pasien/", function (Request $request, Response $response) {
+
+        $new_book = $request->getParsedBody();
+
+        $sql = "INSERT INTO pasien (nama_pasien, jenis_kelamin, alamat, no_telp) VALUE (:nama_petugas, :jenis_kelamin, :alamat, :no_telp)";
+        $stmt = $this->db->prepare($sql);
+
+        $data = [
+            ":nama_pasien" => $new_book["nama_pasien"],
+            ":jenis_kelamin" => $new_book["jenis_kelamin"],
+            ":alamat" => $new_book["alamat"],
+            ":no_telp" => $new_book["no_telp"]
+        ];
+
+        if ($stmt->execute($data))
+            return $response->withJson(["success" => "true", "code_resons" => "200", "data" => "1"], 200);
+
+        return $response->withJson(["success" => "false", "code_resons" => "400", "message" => "sorry,that page does not exist"], 200);
+    });
+
+    $app->put("/pasien/{id}", function (Request $request, Response $response, $args) {
+        $id = $args["id"];
+        $new_book = $request->getParsedBody();
+        $sql = "UPDATE pasien SET nama_pasien=:nama_pasien, jenis_kelamin=:jenis_kelamin, alamat=:alamat, no_telp=:no_telp WHERE id_pasien=:id";
+        $stmt = $this->db->prepare($sql);
+
+        $data = [
+            ":id" => $id,
+            ":nama_pasien" => $new_book["nama_pasien"],
+            ":jenis_kelamin" => $new_book["jenis_kelamin"],
+            ":alamat" => $new_book["alamat"],
+            ":no_telp" => $new_book["no_telp"]
+        ];
+
+        if ($stmt->execute($data))
+            return $response->withJson(["success" => "true", "code_resons" => "200", "data" => "1"], 200);
+
+        return $response->withJson(["success" => "false", "code_resons" => "400", "message" => "sorry,that page does not exist"], 200);
+    });
+
+    $app->delete("/pasien/{id}", function (Request $request, Response $response, $args) {
+        $id = $args["id"];
+        $sql = "DELETE FROM pasien WHERE id_pasien=:id";
+        $stmt = $this->db->prepare($sql);
+
+        $data = [
+            ":id" => $id
+        ];
+
+        if ($stmt->execute($data))
+            return $response->withJson(["success" => "true", "code_resons" => "200", "data" => "1"], 200);
+
+        return $response->withJson(["success" => "false", "code_resons" => "400", "message" => "sorry,that page does not exist"], 200);
+    });
+
+    //=================================================== Pembayaran ======================================================
+
+    $app->get("/pembayaran/", function (Request $request, Response $response) {
+        $sql = "SELECT * FROM pembayaran";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        $result = $stmt->fetchAll();
+        if ($result != null) {
+            return $response->withJson(
+                [
+                    "success" => "true",
+                    "code_resons" => "200",
+                    "data" => $result
+                ],
+                200
+            );
+        } else {
+            return $response->withJson(
+                [
+                    "success" => "false",
+                    "code_resons" => "400",
+                    "message" => "sorry,that page does not exist"
+                ],
+                400
+            );
+        }
+    });
+
+    $app->get("/pembayaran/{id}", function (Request $request, Response $response, $args) {
+        $id = $args["id"];
+        $sql = "SELECT * FROM pembayaran WHERE id_bayar=:id";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([":id" => $id]);
+        $result = $stmt->fetch();
+        if ($result != null) {
+            return $response->withJson(
+                [
+                    "success" => "true",
+                    "code_resons" => "200",
+                    "data" => $result
+                ],
+                200
+            );
+        } else {
+            return $response->withJson(
+                [
+                    "success" => "false",
+                    "code_resons" => "400",
+                    "message" => "sorry,that page does not exist"
+                ],
+                400
+            );
+        }
+    });
+
+    $app->get("/pembayaran/search/", function (Request $request, Response $response, $args) {
+        $keyword = $request->getQueryParam("keyword");
+        $sql = "SELECT * FROM pembayaran WHERE id_pasien LIKE '%$keyword%' OR jumlah_bayar LIKE '%$keyword%'";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        $result = $stmt->fetchAll();
+        if ($result != null) {
+            return $response->withJson(
+                [
+                    "success" => "true",
+                    "code_resons" => "200",
+                    "data" => $result
+                ],
+                200
+            );
+        } else {
+            return $response->withJson(
+                [
+                    "success" => "false",
+                    "code_resons" => "400",
+                    "message" => "sorry,that page does not exist"
+                ],
+                400
+            );
+        }
+    });
+
+    $app->post("/pembayaran/", function (Request $request, Response $response) {
+
+        $new_book = $request->getParsedBody();
+
+        $sql = "INSERT INTO pembayaran (id_pasien, jumlah_bayar) VALUE (:id_pasien, :jumlah_bayar)";
+        $stmt = $this->db->prepare($sql);
+
+        $data = [
+            ":id_pasien" => $new_book["id_pasien"],
+            ":jumlah_bayar" => $new_book["jumlah_bayar"]
+        ];
+
+        if ($stmt->execute($data))
+            return $response->withJson(["success" => "true", "code_resons" => "200", "data" => "1"], 200);
+
+        return $response->withJson(["success" => "false", "code_resons" => "400", "message" => "sorry,that page does not exist"], 200);
+    });
+
+    $app->put("/pembayaran/{id}", function (Request $request, Response $response, $args) {
+        $id = $args["id"];
+        $new_book = $request->getParsedBody();
+        $sql = "UPDATE pembayaran SET id_pasien=:id_pasien, jumlah_bayar=:jumlah_bayar WHERE id_bayar=:id";
+        $stmt = $this->db->prepare($sql);
+
+        $data = [
+            ":id" => $id,
+            ":id_pasien" => $new_book["id_pasien"],
+            ":jumlah_bayar" => $new_book["jumlah_bayar"]
+        ];
+
+        if ($stmt->execute($data))
+            return $response->withJson(["success" => "true", "code_resons" => "200", "data" => "1"], 200);
+
+        return $response->withJson(["success" => "false", "code_resons" => "400", "message" => "sorry,that page does not exist"], 200);
+    });
+
+    $app->delete("/pembayaran/{id}", function (Request $request, Response $response, $args) {
+        $id = $args["id"];
+        $sql = "DELETE FROM pembayaran WHERE id_bayar=:id";
+        $stmt = $this->db->prepare($sql);
+
+        $data = [
+            ":id" => $id
+        ];
+
+        if ($stmt->execute($data))
+            return $response->withJson(["success" => "true", "code_resons" => "200", "data" => "1"], 200);
+
+        return $response->withJson(["success" => "false", "code_resons" => "400", "message" => "sorry,that page does not exist"], 200);
+    });
+};
+
+
+
+
