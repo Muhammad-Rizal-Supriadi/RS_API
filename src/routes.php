@@ -17,7 +17,7 @@ return function (App $app) {
 
     //---------------------------------------------------PoliKlinik--------------------------------------------------
 
-    app->get("/poliklinik/", function (Request $request, Response $response) {
+    $app->get("/poliklinik/", function (Request $request, Response $response) {
         $sql = "SELECT * FROM poliklinik";
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
@@ -734,8 +734,7 @@ return function (App $app) {
     
         return $response->withJson(["success" => "false", "code_resons" => "400", "message" => "sorry,that page does not exist"], 200);
     });
-<<<<<<< HEAD
-};
+// };
 
     //============================================ Pasien ===========================================================
 
@@ -1009,8 +1008,3 @@ return function (App $app) {
 };
 
 
-
-
-=======
-};
->>>>>>> 51a2bbf3c1edd31efcf0c0c6316ad43f3dc65dc7
