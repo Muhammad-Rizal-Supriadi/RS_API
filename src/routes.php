@@ -276,4 +276,160 @@ return function (App $app) {
 
         return $response->withJson(["success" => "false", "code_resons" => "400", "message" => "sorry,that page does not exist"], 200);
     });
+    
+//====================================================Obat===============================================================
+    $app->get("/obat/", function (Request $request, Response $response) {
+        $sql = "SELECT * FROM obat";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+         $result = $stmt->fetchAll();
+        return $response->withJson(["success" => "true", "code_resons" => "200", "data" => $result], 200);
+    });
+    
+    $app->get("/obat/{id}", function (Request $request, Response $response, $args) {
+        $id = $args["id"];
+        $sql = "SELECT * FROM obat WHERE id_obat=:id";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([":id" => $id]);
+        $result = $stmt->fetch();
+        return $response->withJson(["success" => "true", "code_resons" => "200", "data" => $result], 200);
+    });
+    
+    $app->get("/obat/search/", function (Request $request, Response $response, $args) {
+        $keyword = $request->getQueryParam("keyword");
+        $sql = "SELECT * FROM obat WHERE nama_obat LIKE '%$keyword%' OR ket_obat LIKE '%$keyword%'";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        $result = $stmt->fetchAll();
+        return $response->withJson(["success" => "true", "code_resons" => "200", "data" => $result], 200);
+    });
+    
+    $app->post("/obat/", function (Request $request, Response $response) {
+    
+    $new_book = $request->getParsedBody();
+    
+    $sql = "INSERT INTO obat (nama_obat, ket_obat) VALUE (:nama_obat, :ket_obat)";
+    $stmt = $this->db->prepare($sql);
+    
+        $data = [
+        ":nama_obat" => $new_book["nama_obat"],
+        ":ket_obat" => $new_book["ket_obat"]
+    ];
+    
+    if ($stmt->execute($data))
+        return $response->withJson(["success" => "true", "code_resons" => "200", "data" => "1"], 200);
+    
+        return $response->withJson(["success" => "false", "code_resons" => "400", "message" => "sorry,that page does not exist"], 200);
+    });
+    
+    $app->put("/obat/{id}", function (Request $request, Response $response, $args) {
+        $id = $args["id"];
+        $new_book = $request->getParsedBody();
+        $sql = "UPDATE obat SET nama_obat=:nama_obat, ket_obat=:ket_obat WHERE id_obat=:id";
+        $stmt = $this->db->prepare($sql);
+    
+            $data = [
+                ":id" => $id,
+                ":nama_obat" => $new_book["nama_obat"],
+                ":ket_obat" => $new_book["ket_obat"]
+            ];
+    
+            if ($stmt->execute($data))
+                return $response->withJson(["success" => "true", "code_resons" => "200", "data" => "1"], 200);
+    
+            return $response->withJson(["success" => "false", "code_resons" => "400", "message" => "sorry,that page does not exist"], 200);
+        });
+    
+    $app->delete("/obat/{id}", function (Request $request, Response $response, $args) {
+        $id = $args["id"];
+        $sql = "DELETE FROM obat WHERE id_obat=:id";
+        $stmt = $this->db->prepare($sql);
+
+        $data = [
+            ":id" => $id
+         ];
+
+        if ($stmt->execute($data))
+             return $response->withJson(["success" => "true", "code_resons" => "200", "data" => "1"], 200);
+    
+        return $response->withJson(["success" => "false", "code_resons" => "400", "message" => "sorry,that page does not exist"], 200);
+    });
+
+//===================-==============================rm_obat==============================================================
+    $app->get("/rm_obat/", function (Request $request, Response $response) {
+        $sql = "SELECT * FROM rm_obat";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        $result = $stmt->fetchAll();
+        return $response->withJson(["success" => "true", "code_resons" => "200", "data" => $result], 200);
+    });
+    
+    $app->get("/rm_obat/{id}", function (Request $request, Response $response, $args) {
+        $id = $args["id"];
+        $sql = "SELECT * FROM rm_obat WHERE id_rm_obat=:id";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([":id" => $id]);
+        $result = $stmt->fetch();
+        return $response->withJson(["success" => "true", "code_resons" => "200", "data" => $result], 200);
+    });
+    
+    $app->get("/rm_obat/search/", function (Request $request, Response $response, $args) {
+        $keyword = $request->getQueryParam("keyword");
+        $sql = "SELECT * FROM rm_obat WHERE id_rekamedis LIKE '%$keyword%' OR id_obat LIKE '%$keyword%'";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        $result = $stmt->fetchAll();
+        return $response->withJson(["success" => "true", "code_resons" => "200", "data" => $result], 200);
+    });
+    
+    $app->post("/rm_obat/", function (Request $request, Response $response) {
+    
+        $new_book = $request->getParsedBody();
+    
+        $sql = "INSERT INTO rm_obat (id_rekamedis, id_obat) VALUE (:id_rekamedis, :id_obat)";
+        $stmt = $this->db->prepare($sql);
+    
+        $data = [
+            ":id_rekamedis" => $new_book["id_rekamedis"],
+            ":id_obat" => $new_book["id_obat"]
+        ];
+    
+        if ($stmt->execute($data))
+            return $response->withJson(["success" => "true", "code_resons" => "200", "data" => "1"], 200);
+    
+        return $response->withJson(["success" => "false", "code_resons" => "400", "message" => "sorry,that page does not exist"], 200);
+    });
+    
+    $app->put("/rm_obat/{id}", function (Request $request, Response $response, $args) {
+        $id = $args["id"];
+        $new_book = $request->getParsedBody();
+        $sql = "UPDATE rm_obat SET id_rekamedis=:id_rekamedis, id_obat=:id_obat WHERE id_rm_obat=:id";
+        $stmt = $this->db->prepare($sql);
+    
+        $data = [
+            ":id" => $id,
+            ":id_rekamedis" => $new_book["id_rekamedis"],
+            ":id_obat" => $new_book["id_obat"]
+        ];
+    
+        if ($stmt->execute($data))
+            return $response->withJson(["success" => "true", "code_resons" => "200", "data" => "1"], 200);
+    
+        return $response->withJson(["success" => "false", "code_resons" => "400", "message" => "sorry,that page does not exist"], 200);
+    });
+    
+    $app->delete("/rm_obat/{id}", function (Request $request, Response $response, $args) {
+        $id = $args["id"];
+        $sql = "DELETE FROM rm_obat WHERE id_rm_obat=:id";
+        $stmt = $this->db->prepare($sql);
+    
+        $data = [
+            ":id" => $id
+        ];
+    
+        if ($stmt->execute($data))
+            return $response->withJson(["success" => "true", "code_resons" => "200", "data" => "1"], 200);
+    
+        return $response->withJson(["success" => "false", "code_resons" => "400", "message" => "sorry,that page does not exist"], 200);
+    });
 };
