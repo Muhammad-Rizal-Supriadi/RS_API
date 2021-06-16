@@ -15,7 +15,7 @@ return function (App $app) {
         return $container->get('renderer')->render($response, 'index.phtml', $args);
     });
 
-    //---------------------------------------------------Dokter --------------------------------------------------
+    //======================================================= Dokter ================================================-
     
     $app->get("/dokter/", function (Request $request, Response $response) {
         $sql = "SELECT * FROM dokter";
@@ -134,7 +134,7 @@ return function (App $app) {
         return $response->withJson(["success" => "false", "code_resons" => "400", "message" => "sorry,that page does not exist"], 200);
     });
 
-    //---------------------------------------------------Rekamedis --------------------------------------------------
+    //============================================ Rekamedis =============================================
     
     $app->get("/rekamedis/", function (Request $request, Response $response) {
         $sql = "SELECT
