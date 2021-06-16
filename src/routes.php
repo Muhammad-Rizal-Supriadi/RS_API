@@ -734,7 +734,6 @@ return function (App $app) {
     
         return $response->withJson(["success" => "false", "code_resons" => "400", "message" => "sorry,that page does not exist"], 200);
     });
-<<<<<<< HEAD
 };
 
     //============================================ Pasien ===========================================================
@@ -1011,6 +1010,3 @@ return function (App $app) {
 
 
 
-=======
-};
->>>>>>> 51a2bbf3c1edd31efcf0c0c6316ad43f3dc65dc7
