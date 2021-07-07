@@ -27,6 +27,7 @@ $middleware($app);
 
 // Register routes
 $routes = require __DIR__ . '/../src/routes.php';
+//$routes = require __DIR__ . '/../routes/web.php';
 $routes($app);
 
 // Run app

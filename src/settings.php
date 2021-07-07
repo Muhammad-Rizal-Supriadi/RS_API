@@ -23,6 +23,10 @@ return [
             'pass' => '',
             'dbname' => 'rumahsakit',
             'driver' => 'mysql'
+        ],
+
+        'jwt' => [
+            'secret' => 'supersecretkeyyoushouldnotcommittogithub'
         ]
     ],
 ];
